@@ -25,12 +25,29 @@
         margin: 0 auto;
         box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
       }
-      #centerContainer {
+      #centerContainer,
+      #winnerDisplay {
         position: fixed;
         top: 40%;
         left: 50%;
         transform: translate(-50%, -50%);
         text-align: center;
+        width: 70%;
+        height: 60%;
+        display: flex; /* Enable flexbox */
+        flex-direction: column; /* Stack children vertically */
+        justify-content: center; /* Center content vertically */
+        align-items: center; /* Center content horizontally */
+      }
+
+      #winnerDisplay.hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+
+      #winnerDisplay {
+        opacity: 1;
+        visibility: visible;
       }
 
       input[type="file"] {
@@ -86,22 +103,20 @@
 
       #winnerList {
         display: flex;
-        justify-content: center;
         flex-wrap: wrap;
-        gap: 20px;
+        justify-content: space-evenly;
         margin: 20px auto;
-      }
-      .column {
-        flex: 1 1 30%;
-        text-align: left;
-        list-style: none;
-        padding: 0;
+        width: 100%;
       }
 
-      .column li {
+      #winnerList li {
         font-size: 1.2em;
-        margin: 5px 0;
+        margin: 5px;
+        flex-basis: 30%;
+        text-align: center;
+        list-style: none;
       }
+
       @keyframes flash {
         0%,
         100% {
@@ -180,6 +195,7 @@
       document
         .getElementById("startButton")
         .addEventListener("click", function () {
+          console.log(participants.length);
           // Allow user to input number of names to draw
           const numberToDraw = parseInt(
             document.getElementById("numberToDraw").value,
@@ -205,7 +221,12 @@
 
           // Flash names and draw one at a time
           function drawNext() {
-            if (i >= numberToDraw) return;
+            if (i >= numberToDraw) {
+              document
+                .getElementById("nextDrawButton")
+                .classList.remove("hidden");
+              return;
+            }
 
             let drawInterval = setInterval(() => {
               const randomName =
@@ -234,7 +255,7 @@
 
           drawNext();
           document.getElementById("winTitle").textContent =
-                numberToDraw === 1 ? "🎉 WINNER:" : "🎉 WINNERS:";
+            numberToDraw === 1 ? "🎉 WINNER: 🎉" : "🎉 WINNERS: 🎉";
         });
 
       // Next draw button logic
@@ -243,7 +264,8 @@
         .addEventListener("click", function () {
           document.getElementById("drawOptions").classList.remove("hidden");
           document.getElementById("nextDrawButton").classList.add("hidden");
-          document.getElementById("winTitle").textContent ="";
+          document.getElementById("winnerDisplay").classList.add("hidden");
+          document.getElementById("winTitle").textContent = "";
         });
 
       // Display winners in columns
@@ -251,24 +273,11 @@
         const winnerList = document.getElementById("winnerList");
         winnerList.innerHTML = ""; // Clear previous results
 
-        // Split names into a maximum of 3 columns
-        const columns = [[], [], []];
-        names.forEach((name, index) => {
-          columns[index % 3].push(name);
-        });
-
-        // Create columns
-        columns.forEach((col) => {
-          if (col.length > 0) {
-            const ul = document.createElement("ul");
-            ul.classList.add("column");
-            col.forEach((name) => {
-              const li = document.createElement("li");
-              li.textContent = name;
-              ul.appendChild(li);
-            });
-            winnerList.appendChild(ul);
-          }
+        // Loop through each winner and add them to the list
+        names.forEach((name) => {
+          const li = document.createElement("li");
+          li.textContent = name;
+          winnerList.appendChild(li);
         });
       }
     </script>
